@@ -1,6 +1,6 @@
 # Container Proxy Server for Mirantis Software Releases
 
-This project features a Flask-based proxy server designed specifically for streamlining Docker container image retrieval from mirantis.azurecr.io. It serves as an efficient solution for environments where firewall restrictions limit outbound connections to a single whitelisted URL. Typically, fetching images from Mirantis involves accessing various data URLs, most commonly those under \*.blob.core.windows.net, which can be problematic in tightly secured networks. By routing all requests through this proxy, users can adhere to strict firewall rules while still accessing necessary container images, as all data appears to come directly from the whitelisted mirantis.azurecr.io domain, effectively bypassing the direct need for multiple whitelist entries associated with Azure Blob Storage.
+This project features a Flask-based proxy server designed specifically for streamlining software retrieval from mirantis repositories. It serves as an efficient solution for environments where firewall restrictions limit outbound connections to a single whitelisted URL. Typically, fetching images from Mirantis involves accessing various data URLs, most commonly those under \*.blob.core.windows.net, which can be problematic in tightly secured networks. By routing all requests through this proxy, users can adhere to strict firewall rules while still accessing necessary container images, as all data appears to come directly from the whitelisted mirantis.azurecr.io domain, effectively bypassing the direct need for multiple whitelist entries such as those associated with Azure Blob Storage.
 
 ## Table of Contents
 
@@ -36,10 +36,15 @@ pip install -r requirements.txt
 
 ## Usage
 
-Start the proxy:
+Start the TLS proxy:
 
 ```shell
-gunicorn --certfile mirantis.azurecr.io.crt --keyfile mirantis.azurecr.io.key --log-level info -w 1 -b 0.0.0.0:443 container_proxy:app
+gunicorn --certfile mirantis.azurecr.io.crt --keyfile mirantis.azurecr.io.key --log-level info -w 1 -b 0.0.0.0:443 container_proxy:app &
+```
+
+Start the http proxy:
+```shell
+gunicorn --log-level info -w 1 -b 0.0.0.0:80 container_proxy:app &
 ```
 
 Configure client server:

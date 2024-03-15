@@ -23,28 +23,32 @@ logging.basicConfig(level=logging.INFO,
 
 app = Flask(__name__)
 
-AZURE_REGISTRY_URL = 'https://mirantis.azurecr.io'  # Actual Azure registry URL
+# Define base URLs for different repositories
+REPO_BASE_URLS = {
+    'azure': 'https://mirantis.azurecr.io',
+    'repos': 'https://repos.mirantis.com',
+    'binary': 'https://binary.mirantis.com',
+    'mirror': 'https://mirror.mirantis.com',
+    'deb': 'https://deb.nodesource.com',
+    'archive': 'http://archive.ubuntu.com',
+    'security': 'http://security.ubuntu.com'
+}
 
-@app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'HEAD'])
+# Derive the mapping from 'Host' header to repo_type based on REPO_BASE_URLS
+HOST_TO_REPO_TYPE = {
+    url.replace('https://', '').replace('http://', ''): repo
+    for repo, url in REPO_BASE_URLS.items()
+}
+
+@app.route('/<path:path>', methods=['GET', 'POST', 'PUT',
+                                                'DELETE', 'HEAD'])
 def proxy_request(path):
     """
-    Acts as a proxy for requests to the Azure Container Registry.
+    Acts as a proxy for requests based on the 'Host' header.
 
-    This function intercepts incoming HTTP requests, logs their details,
-    and then forwards them to the specified Azure Container Registry URL.
-    It modifies the incoming requests by ensuring the 'Host' header is
-    appropriate for the Azure endpoint and by maintaining any 'Authorization'
-    headers present.
-
-    Args:
-        path (str): The specific path in the Azure Container Registry that the
-                    request is trying to access. This could include image names,
-                    tags, or other registry-specific information.
-
-    Returns:
-        Response: A Flask Response object that streams the content from the
-                  Azure registry response back to the client. This includes
-                  status code, headers, and body of the response.
+    The function intercepts incoming HTTP requests, identifies the intended
+    repository based on the 'Host' header, and forwards the requests
+    accordingly.
     """
 
     # Log incoming request details
@@ -54,10 +58,23 @@ def proxy_request(path):
         logging.debug('Incoming Authorization header: %s',
                         request.headers["Authorization"])
 
-    # Construct the URL based on the actual request
-    real_url = f"{AZURE_REGISTRY_URL}/{path}"
+    # Determine the repository type based on the 'Host' header
+    host_header = request.headers.get('Host')
+    repo_type = HOST_TO_REPO_TYPE.get(host_header)
+    logging.debug('Host: %s and Repo type: %s', host_header, repo_type)
+
+    # Ensure the requested repository type is supported
+    if not repo_type or repo_type not in REPO_BASE_URLS:
+        return Response(f"Repository type for host {host_header} not supported",
+                        status=400)
+
+    # Construct the real URL based on the actual request
+    base_url = REPO_BASE_URLS[repo_type]
+    real_url = f"{base_url}/{path}"
     if request.query_string:
         real_url += f'?{request.query_string.decode("utf-8")}'
+
+    logging.debug('Upstream url to request: %s', real_url)
 
     # Forward the request to the Azure registry
     headers = dict(request.headers)
