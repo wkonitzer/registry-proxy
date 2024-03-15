@@ -39,7 +39,7 @@ pip install -r requirements.txt
 Start the proxy:
 
 ```shell
-gunicorn --certfile mirantis.azurecr.io.crt --keyfile mirantis.azurecr.io.key --log-level info -w 1 -b 0.0.0.0:443 container-proxy:app
+gunicorn --certfile mirantis.azurecr.io.crt --keyfile mirantis.azurecr.io.key --log-level info -w 1 -b 0.0.0.0:443 container_proxy:app
 ```
 
 Configure client server:

@@ -49,7 +49,7 @@ def proxy_request(path):
 
     # Log incoming request details
     logging.info('Incoming request: %s %s', request.method, request.full_path)
-    logging.debug('Request headers: %s', {request.headers})
+    logging.debug('Request headers: %s', request.headers)
     if 'Authorization' in request.headers:
         logging.debug('Incoming Authorization header: %s',
                         request.headers["Authorization"])
