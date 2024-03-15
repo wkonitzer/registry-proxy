@@ -11,7 +11,7 @@ This project features a Flask-based proxy server designed specifically for strea
 
 ## Installation
 
-Make sure you have python3 installed as a pre-requisite.
+Make sure you have python3 installed as a pre-requisite on a server running Ubuntu 22.04.
 
 Clone the repository:
 ```shell
