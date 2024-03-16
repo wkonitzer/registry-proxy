@@ -1,21 +1,27 @@
 """
-This Flask application acts as a proxy server for Docker image requests to the
-Azure Container Registry. It intercepts incoming requests, logs request and
-response details, and forwards the requests to the specified Azure registry URL
-while stripping out inappropriate headers and appending necessary ones.
+This Flask application serves as a versatile proxy server, dynamically routing 
+requests to various backend services based on the 'Host' header. Originally 
+designed for Docker image requests to the Azure Container Registry, it has been 
+extended to support multiple repositories including but not limited to Mirantis, 
+Ubuntu archives, and NodeSource.
 
-The application supports GET, POST, PUT, DELETE, and HEAD HTTP methods to
-accommodate various types of registry interactions such as pulling images,
-pushing images, and querying image information.
+It captures and forwards incoming requests, handling a range of HTTP methods 
+(GET, POST, PUT, DELETE, HEAD) to accommodate diverse registry interactions 
+such as image pull/push and metadata queries. The application also responsibly 
+manages headers, maintaining essential ones like 'Authorization' for secure 
+communication while stripping or modifying others as needed for correct 
+forwarding.
 
-The app also handles the redirection of authorization headers to ensure secure
-communication between the client and Azure services while maintaining the
-integrity of the request-response cycle.
+The proxy dynamically determines the destination based on the incoming request's 
+'Host' header, matching it against a predefined set of supported repositories. 
+This enables seamless integration with various services while ensuring the 
+integrity and confidentiality of the request-response cycle are preserved.
 """
 
 import logging
 from flask import Flask, request, Response
 import requests
+from requests.exceptions import RequestException
 
 # Set up basic configuration for logging
 logging.basicConfig(level=logging.INFO,
@@ -78,11 +84,16 @@ def proxy_request(path):
 
     logging.debug('Upstream url to request: %s', real_url)
 
-    # Forward the request to the Azure registry
+    # Forward the request
     headers = dict(request.headers)
     headers.pop('Host', None) # Remove host to ensure proper forwarding
-    response = requests.request(method=request.method, url=real_url,
+
+    try:
+        response = requests.request(method=request.method, url=real_url,
                                 headers=headers, stream=True, timeout=(10, 30))
+    except RequestException as error:
+        logging.error('Error forwarding request: %s', error)
+        return Response("Error forwarding request", status=502)  # 502 Bad Gateway
 
     # Log outgoing request Authorization header
     if 'Authorization' in headers:
