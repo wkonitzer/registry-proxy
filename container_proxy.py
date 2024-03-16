@@ -40,8 +40,9 @@ HOST_TO_REPO_TYPE = {
     for repo, url in REPO_BASE_URLS.items()
 }
 
-@app.route('/<path:path>', methods=['GET', 'POST', 'PUT',
+@app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT',
                                                 'DELETE', 'HEAD'])
+@app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE', 'HEAD'])
 def proxy_request(path):
     """
     Acts as a proxy for requests based on the 'Host' header.
@@ -61,7 +62,8 @@ def proxy_request(path):
     # Determine the repository type based on the 'Host' header
     host_header = request.headers.get('Host')
     repo_type = HOST_TO_REPO_TYPE.get(host_header)
-    logging.debug('Host: %s and Repo type: %s', host_header, repo_type)
+    logging.debug('Host: %s', host_header)
+    logging.info('Repo type: %s', repo_type)
 
     # Ensure the requested repository type is supported
     if not repo_type or repo_type not in REPO_BASE_URLS:
