@@ -1,6 +1,10 @@
-# Container Proxy Server for Mirantis Software Releases
+# Unified Proxy Server for Mirantis Software Releases
 
-This project features a Flask-based proxy server designed specifically for streamlining software retrieval from mirantis repositories. It serves as an efficient solution for environments where firewall restrictions limit outbound connections to a single whitelisted URL. Typically, fetching images from Mirantis involves accessing various data URLs, most commonly those under \*.blob.core.windows.net, which can be problematic in tightly secured networks. By routing all requests through this proxy, users can adhere to strict firewall rules while still accessing necessary container images, as all data appears to come directly from the whitelisted mirantis.azurecr.io domain, effectively bypassing the direct need for multiple whitelist entries such as those associated with Azure Blob Storage.
+This project introduces a Flask-based proxy server designed to facilitate container image and software package retrieval from various repositories, primarily focusing on Mirantis and Ubuntu archives. It addresses the common challenge faced by environments with stringent firewall restrictions that only permit outbound connections to a predefined set of whitelisted URLs.
+
+Traditionally, accessing container images from Mirantis or package updates from Ubuntu repositories requires connections to multiple data URLs, including those under \*.blob.core.windows.net and archive.ubuntu.com, posing a challenge in secure network environments. This proxy server routes all requests through a single, whitelisted domain, enabling users to comply with strict firewall policies while maintaining access to necessary resources.
+
+The server acts as an intermediary, handling requests for Mirantis Docker images, Ubuntu package updates, and other software repositories by dynamically resolving and forwarding requests based on the 'Host' header. This approach allows all data to appear as if it is being served directly from the whitelisted domains, such as mirantis.azurecr.io or archive.ubuntu.com, thus eliminating the need for multiple whitelist entries and simplifying network security configurations.
 
 ## Table of Contents
 
