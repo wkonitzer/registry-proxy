@@ -21,13 +21,13 @@ spec:
         app: proxy-server
     spec:
       containers:
-      - name: proxy-http
-        image: msr2.konitzer.dev/wkonitzer/proxy-server:latest  # Replace with your actual image
-        ports:
-        - containerPort: 8080
-        env:
-        - name: MODE
-          value: "http"
+#      - name: proxy-http
+#        image: msr2.konitzer.dev/wkonitzer/proxy-server:latest  # Replace with your actual image
+#        ports:
+#        - containerPort: 8080
+#        env:
+#        - name: MODE
+#          value: "http"
       - name: proxy-https
         image: msr2.konitzer.dev/wkonitzer/proxy-server:latest
         ports:
@@ -37,7 +37,7 @@ spec:
           value: "https"
         volumeMounts:
         - name: cert-volume
-          mountPath: /app
+          mountPath: /etc/ssl/certs/
       volumes:
       - name: cert-volume
         secret:
