@@ -9,3 +9,4 @@ DNS.2 = repos.mirantis.com
 DNS.3 = binary.mirantis.com
 DNS.4 = mirror.mirantis.com
 DNS.5 = deb.nodesource.com
+DNS.6 = images.konitzer.dev
