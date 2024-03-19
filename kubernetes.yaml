@@ -123,16 +123,15 @@ spec:
         securityContext:
           runAsNonRoot: true
           runAsUser: 1001
-        env:
-#        - name: LOGGING_LEVEL
-#          value: "DEBUG"  
-#        - name: FLASK_DEBUG
-#          value: "True" 
         ports:
         - containerPort: 8080
         env:
         - name: MODE
           value: "http"
+        - name: LOGGING_LEVEL
+          value: "INFO"  
+#        - name: FLASK_DEBUG
+#          value: "True"           
         resources:
           requests:
             cpu: "10m"
@@ -144,16 +143,15 @@ spec:
         securityContext:
           runAsNonRoot: true
           runAsUser: 1001
-        env:
-        - name: LOGGING_LEVEL
-          value: "DEBUG"  
-#        - name: FLASK_DEBUG
-#          value: "True"
         ports:
         - containerPort: 8443
         env:
         - name: MODE
           value: "https"
+        - name: LOGGING_LEVEL
+          value: "DEBUG"
+#        - name: FLASK_DEBUG
+#          value: "True"                   
         resources:
           requests:
             cpu: "10m"
