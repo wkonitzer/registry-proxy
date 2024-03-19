@@ -120,15 +120,6 @@ def proxy_request(path):
                     status=response.status_code, headers=dict(response.headers))
 
 
-@app.route('/health')
-def health_check():
-    """
-    A simple health check endpoint returning 'OK' with a 200 status code.
-    Can be used as a liveness and readiness probe in Kubernetes.
-    """
-    return 'OK', 200
-
-
 if __name__ == '__main__':
     logging.info('Starting application...')
     is_debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'

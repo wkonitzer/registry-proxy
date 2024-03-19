@@ -138,19 +138,7 @@ spec:
             cpu: "10m"
             memory: "100Mi"
           limits:
-            memory: "200Mi"
-        livenessProbe:
-          httpGet:
-            path: /health 
-            port: 4000
-          initialDelaySeconds: 30 
-          periodSeconds: 10 
-        readinessProbe:
-          httpGet:
-            path: /health 
-            port: 4000
-          initialDelaySeconds: 5 
-          periodSeconds: 5           
+            memory: "200Mi"          
       - name: proxy-https
         image: msr2.konitzer.dev/wkonitzer/proxy-server:latest
         securityContext:
@@ -171,19 +159,7 @@ spec:
             cpu: "10m"
             memory: "100Mi"
           limits:
-            memory: "200Mi"
-        livenessProbe:
-          httpGet:
-            path: /health 
-            port: 4000
-          initialDelaySeconds: 30 
-          periodSeconds: 10 
-        readinessProbe:
-          httpGet:
-            path: /health 
-            port: 4000
-          initialDelaySeconds: 5 
-          periodSeconds: 5           
+            memory: "200Mi"          
         volumeMounts:
         - name: cert-volume
           mountPath: /etc/ssl/certs/
