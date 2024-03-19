@@ -18,13 +18,23 @@ This enables seamless integration with various services while ensuring the
 integrity and confidentiality of the request-response cycle are preserved.
 """
 
+import os
 import logging
 from flask import Flask, request, Response
 import requests
 from requests.exceptions import RequestException
 
+# Retrieve the desired logging level from an environment variable, defaulting
+# to "INFO" if not set
+LOG_LEVEL = os.environ.get('LOGGING_LEVEL', 'INFO').upper()
+
+# Validate the provided logging level
+if LOG_LEVEL not in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL']:
+    logging.warning('Invalid LOG_LEVEL: %s. Defaulting to INFO.', LOG_LEVEL)
+    LOG_LEVEL = 'INFO'
+
 # Set up basic configuration for logging
-logging.basicConfig(level=logging.INFO,
+logging.basicConfig(level=getattr(logging, LOG_LEVEL),
                     format='%(asctime)s - %(levelname)s - %(message)s')
 
 app = Flask(__name__)
@@ -66,7 +76,8 @@ def proxy_request(path):
                         request.headers["Authorization"])
 
     # Determine the repository type based on the 'Host' header
-    host_header = request.headers.get('Host')
+    # Strip port from header if present.
+    host_header = request.headers.get('Host').split(':')[0]
     repo_type = HOST_TO_REPO_TYPE.get(host_header)
     logging.debug('Host: %s', host_header)
     logging.info('Repo type: %s', repo_type)
@@ -109,5 +120,18 @@ def proxy_request(path):
                     status=response.status_code, headers=dict(response.headers))
 
 
+@app.route('/health')
+def health_check():
+    """
+    A simple health check endpoint returning 'OK' with a 200 status code.
+    Can be used as a liveness and readiness probe in Kubernetes.
+    """
+    return 'OK', 200
+
+
 if __name__ == '__main__':
-    app.run(debug=False, host='0.0.0.0')
+    logging.info('Starting application...')
+    is_debug_mode = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
+    logging.info('Debug: %s.', is_debug_mode)
+    app.run(debug=is_debug_mode, host='0.0.0.0')
+    logging.info('Application stopped.')
